@@ -4,6 +4,7 @@ import exceptions.PlayerCountNotValidException;
 import models.Game;
 import models.Player;
 import models.Symbol;
+import models.enums.GameState;
 import models.enums.PlayerType;
 import strategy.WinningStrategy.WinningStrategy;
 
@@ -26,8 +27,14 @@ public class Client {
 
         gameController.startGame(4,players,winningStrategies);
 
-        //Game game= Game.getBuilder().setDimension(4).setPlayers(players).setWinningStrategies(winningStrategies).build();
+        Game game= Game.getBuilder().setDimension(4).setPlayers(players).setWinningStrategies(winningStrategies).build();
 
+
+        while(game.getGameState().equals(GameState.IN_PROGRESS)){
+
+            gameController.printBoard(game);
+            gameController.makeMove(game);
+        }
 
         System.out.println("Enjoy");
     }

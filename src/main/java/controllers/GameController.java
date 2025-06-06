@@ -2,6 +2,7 @@ package controllers;
 
 import exceptions.BOTCountInvalidException;
 import exceptions.PlayerCountNotValidException;
+import models.Board;
 import models.Game;
 import models.Player;
 import strategy.WinningStrategy.WinningStrategy;
@@ -16,5 +17,13 @@ public class GameController {
                 setPlayers(players).
                 setWinningStrategies(winningStrategies).
                 build();
+    }
+
+    public void printBoard(Game game) {
+        game.printBoard();
+    }
+
+    public void makeMove(Game game) {
+
     }
 }
