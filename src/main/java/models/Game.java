@@ -2,11 +2,13 @@ package models;
 
 import exceptions.BOTCountInvalidException;
 import exceptions.PlayerCountNotValidException;
+import models.enums.CellState;
 import models.enums.GameState;
 import models.enums.PlayerType;
 import strategy.WinningStrategy.WinningStrategy;
 
 import javax.swing.*;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +20,7 @@ public class Game {
     private GameState gameState;
     private Player Winner;
     private int nextPlayerTurnIndex;
+    private int CurrentPlayerIndex;
     private List<WinningStrategy> winningStrategies;
 
     public Board getBoard() {
@@ -76,6 +79,62 @@ public class Game {
         this.winningStrategies = winningStrategies;
     }
 
+    public int getCurrentPlayerIndex() {
+        return CurrentPlayerIndex;
+    }
+
+    public void setCurrentPlayerIndex(int currentPlayerIndex) {
+        CurrentPlayerIndex = currentPlayerIndex;
+    }
+
+    public void makeMove() {
+        Player currentPlayer = players.get(nextPlayerTurnIndex);
+        System.out.println("It's "+currentPlayer.getPlayerName()+"'s turn");
+
+        Cell dummycell=currentPlayer.chooseCellToPlay(board);
+
+        int row=dummycell.getRow();
+        int col=dummycell.getCol();
+
+        if(!validateMove(dummycell.getRow(),dummycell.getCol())){
+            System.out.println("Invalid move, can you choose again");
+            return;
+        }
+
+        Cell cell=board.getBoard().get(row).get(col);
+        cell.setCellState(CellState.FILLED);
+        cell.setPlayer(currentPlayer);
+
+        Move move=new Move(currentPlayer,cell);
+
+        moves.add(move);
+
+        if(checkWinner(move)){
+            gameState =gameState.ENDED;
+            Winner=currentPlayer;
+        }
+        else if(moves.size()== board.getDimension()*board.getDimension()){
+            gameState =gameState.DRAW;
+        }
+        CurrentPlayerIndex=nextPlayerTurnIndex;
+        nextPlayerTurnIndex=(nextPlayerTurnIndex+1)%players.size();
+//        if(nextPlayerTurnIndex==0){
+//            CurrentPlayerIndex=0;
+//        }
+    }
+
+    private boolean validateMove(int row, int column) {
+        if(row<0 || row>= board.getDimension() || column<0 || column> board.getDimension()){
+            return false;
+        }
+
+        if(board.getBoard().get(row).get(column).getCellState().equals(CellState.FILLED)){
+            return false;
+        }
+
+        return true;
+    }
+
     public static Builder getBuilder(){
         return new Builder();
     }
@@ -124,7 +183,7 @@ public class Game {
         private void validateUnqiueSymbols() {
             HashSet<Character> symbols=new HashSet<Character>();
             for(Player p:players){
-                symbols.add(p.getPlayerSymbol().getPlayerSymbol());
+                symbols.add(p.getPlayerSymbol().getSymbolChar());
             }
             if(symbols.size()!=players.size()){
                 throw new RuntimeException("Symbols for all players are not unique");
@@ -156,15 +215,44 @@ public class Game {
         }
     }
 
-    public Player checkWinner() {
+    public boolean checkWinner(Move move) {
         for(WinningStrategy winningStrategy:winningStrategies){
-            winningStrategy.checkWinner();
+            if(winningStrategy.checkWinner(move, board.getDimension())){
+                return true;
+            }
         }
-        return Winner;
+        return false;
     }
 
     public void printBoard() {
         board.printBoard();
+    }
+
+
+    public void UndoMove(){
+
+
+        if(moves.size()==0){
+            System.out.println("No Moves to Undo");
+            return;
+        }
+
+        Move lastMove=moves.getLast();
+        moves.remove(lastMove);
+
+
+        Cell cell=lastMove.getCell();
+        cell.setCellState(CellState.EMPTY);
+        cell.setPlayer(null);
+
+
+        nextPlayerTurnIndex=(nextPlayerTurnIndex-1+players.size())%players.size();
+
+
+        for(WinningStrategy winningStrategy:winningStrategies){
+            winningStrategy.handleUndo(lastMove, board.getDimension());
+        }
+
     }
 
     private Game(int dimension,List<Player> players,List<WinningStrategy> winningStrategies) {
@@ -175,6 +263,7 @@ public class Game {
         this.nextPlayerTurnIndex = 0;
         this.gameState=GameState.IN_PROGRESS;
         this.winningStrategies = winningStrategies;
+        this.CurrentPlayerIndex=0;
     }
 
 }

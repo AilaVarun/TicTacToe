@@ -2,11 +2,14 @@ package models;
 
 import models.enums.PlayerType;
 
+import java.util.Scanner;
+
 public class Player {
 
     private String playerName;
     private Symbol playerSymbol;
     private PlayerType playerType;
+    private Scanner scanner= new Scanner(System.in);
 
     public Player(String playerName, Symbol playerSymbol, PlayerType playerType) {
         this.playerName = playerName;
@@ -39,7 +42,13 @@ public class Player {
     }
 
 
-    public Move makeMove() {
-        return null;
+    public Cell chooseCellToPlay(Board board) {
+
+        System.out.println("Enter the row number where you want to make");
+        int row = scanner.nextInt();
+        System.out.println("Enter the column number where you want to make");
+        int column = scanner.nextInt();
+
+        return new Cell(row,column);
     }
 }

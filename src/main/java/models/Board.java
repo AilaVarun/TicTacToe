@@ -1,5 +1,7 @@
 package models;
 
+import models.enums.CellState;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,10 +39,15 @@ public class Board {
     }
 
 
-    public void printBoard() {
-        for (List<Cell> row : board) {
-            for (Cell cell : row) {
-                System.out.print(cell.getPlayer().getPlayerSymbol() + " ");
+     void printBoard() {
+        for (List<Cell> cells : board) {
+            for (Cell cell : cells) {
+                if(cell.getCellState().equals(CellState.EMPTY)){
+                    System.out.print("|   |");
+                }
+                else{
+                    System.out.print("| "+cell.getPlayer().getPlayerSymbol().getSymbolChar() + " |");
+                }
             }
             System.out.println();
         }

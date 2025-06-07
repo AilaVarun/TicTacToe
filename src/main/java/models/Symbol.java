@@ -2,21 +2,21 @@ package models;
 
 public class Symbol {
 
-    private char playerSymbol;
+    private char SymbolChar;
 
     private String AvatarURL;
 
-    public Symbol(char playerSymbol, String AvatarURL) {
-        this.playerSymbol = playerSymbol;
+    public Symbol(char SymbolChar, String AvatarURL) {
+        this.SymbolChar = SymbolChar;
         this.AvatarURL = AvatarURL;
     }
 
-    public char getPlayerSymbol() {
-        return playerSymbol;
+    public char getSymbolChar() {
+        return SymbolChar;
     }
 
-    public void setPlayerSymbol(char playerSymbol) {
-        this.playerSymbol = playerSymbol;
+    public void setSymbolChar(char playerSymbol) {
+        this.SymbolChar = SymbolChar;
     }
 
     public String getAvatarURL() {
